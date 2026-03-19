@@ -15,14 +15,11 @@ import { useState } from "react";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      setSubmitted(true);
-      setEmail("");
-      setTimeout(() => setSubmitted(false), 3000);
+      window.location.href = '/auth';
     }
   };
 
@@ -43,7 +40,7 @@ export default function Home() {
             <a href="#pricing" className="text-sm font-medium hover:text-primary transition">Preços</a>
             <a href="#faq" className="text-sm font-medium hover:text-primary transition">FAQ</a>
           </div>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => window.location.href = '/auth'}>
             Entrar
           </Button>
         </div>
@@ -64,17 +61,18 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground  font-semibold"
-                  onClick={() => document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() => window.location.href = '/auth'}
                 >
                   Começar Gratuitamente <ChevronRight className="ml-2 w-4 h-4" />
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
                   className="border-primary text-primary hover:bg-primary/5  font-semibold"
+                  onClick={() => window.location.href = '/app'}
                 >
                   Ver Demo
                 </Button>
@@ -462,6 +460,7 @@ export default function Home() {
                       : "border-primary text-primary hover:bg-primary/5"
                   }`}
                   variant={plan.highlighted ? "default" : "outline"}
+                  onClick={() => window.location.href = '/auth'}
                 >
                   {plan.cta}
                 </Button>
@@ -547,11 +546,6 @@ export default function Home() {
               </Button>
             </form>
 
-            {submitted && (
-              <p className="text-primary font-semibold animate-pulse">
-                ✓ Verifique seu email para começar!
-              </p>
-            )}
           </div>
         </div>
       </section>
