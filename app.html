@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Starki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --brand:#F59E0B; --brand-lt:#FFFBF0; --brand-dk:#D97706;
+  --green:#10B981; --green-lt:#ECFDF5;
+  --amber:#F59E0B; --amber-lt:#FFFBEB;
+  --red:#EF4444;
+  --g50:#FAFAF7; --g100:#F5F4EF; --g200:#E8E6DF;
+  --g400:#9CA3AF; --g600:#4B5563; --g800:#1F2937; --g900:#0F0E1A;
+  --white:#FFFFFF;
+  --r:12px; --rs:8px;
+  --sh:0 2px 12px rgba(245,158,11,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito Sans',sans-serif;background:#FFFBF0;min-height:100vh;color:var(--g900);}
+
+/* Layout */
+.topbar{background:#FFFBF0;border-bottom:1px solid #FDE68A;padding:.75rem 1.25rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:40;}
+.logo{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--g900);}
+.logo span{color:var(--brand);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.family-name{font-size:13px;font-weight:600;color:var(--g600);}
+
+.main{max-width:760px;margin:0 auto;padding:1.25rem 1rem 4rem;}
+
+/* Avatar */
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:white;flex-shrink:0;}
+
+/* Tabs */
+.tabs{display:flex;gap:3px;background:var(--g100);border-radius:20px;padding:3px;width:fit-content;margin-bottom:1.25rem;}
+.tab{cursor:pointer;border:none;background:none;font-size:13px;font-family:'Nunito Sans',sans-serif;padding:6px 16px;border-radius:20px;color:var(--g600);transition:all .15s;}
+.tab.active{background:#0F0E1A;color:#F59E0B;}
+
+/* Children selector */
+.children-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center;}
+.child-btn{cursor:pointer;display:flex;align-items:center;gap:7px;border:1px solid var(--g200);border-radius:20px;padding:5px 13px 5px 6px;background:var(--white);font-size:13px;font-family:'Nunito Sans',sans-serif;color:var(--g800);transition:all .15s;}
+.child-btn.active{border-width:1.5px;}
+.child-btn:hover{border-color:var(--g400);}
+.add-child-btn{cursor:pointer;border:1px dashed var(--g400);border-radius:20px;padding:5px 13px;background:none;font-size:13px;font-family:'Nunito Sans',sans-serif;color:var(--g600);}
+.add-child-btn:hover{border-color:var(--brand);color:var(--brand);}
+
+/* Stats row */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1rem;}
+.stat{background:var(--white);border:1px solid var(--g200);border-radius:var(--rs);padding:.875rem;}
+.stat-label{font-size:11px;color:var(--g400);margin-bottom:4px;}
+.stat-val{font-family:'Nunito',sans-serif;font-size:22px;font-weight:800;color:var(--g900);}
+.stat-sub{font-size:11px;color:var(--g400);}
+
+/* Progress bar */
+.prog-wrap{height:5px;background:var(--g200);border-radius:3px;margin-bottom:1.5rem;overflow:hidden;}
+.prog-bar{height:100%;border-radius:3px;transition:width .4s ease;}
+
+/* Week header */
+.week-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px;}
+.week-label{font-size:13px;color:var(--g600);}
+.add-bank-btn{cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;padding:6px 13px;border:none;border-radius:20px;color:white;transition:opacity .15s;}
+.add-bank-btn:hover{opacity:.85;}
+.add-bank-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Task grid card */
+.task-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);padding:4px 14px;margin-bottom:1rem;}
+.day-header{display:flex;align-items:center;gap:5px;padding:8px 0 4px;}
+.day-header-spacer{flex:1;min-width:140px;}
+.day-col{width:36px;flex-shrink:0;text-align:center;}
+.day-name{font-size:11px;font-weight:600;color:var(--g400);display:block;}
+.day-today-dot{width:4px;height:4px;border-radius:50%;margin:2px auto 0;}
+
+.task-row{display:flex;align-items:center;gap:5px;padding:8px 0;border-bottom:1px solid var(--g100);}
+.task-row:last-child{border-bottom:none;}
+.task-info{flex:1;min-width:140px;}
+.task-label{font-size:13px;color:var(--g900);line-height:1.3;}
+.task-pts-badge{display:flex;align-items:center;gap:2px;margin-top:2px;}
+.task-pts-text{font-size:10px;color:var(--g400);}
+
+.day-cell{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--g200);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:transparent;position:relative;}
+.day-cell:hover{border-color:var(--g400);}
+.day-cell.done{border-color:transparent;}
+.day-cell.pending{border-style:dashed;border-color:var(--amber);}
+
+.check-svg{display:none;}
+.day-cell.done .check-svg{display:block;}
+
+.pts-col{width:36px;text-align:center;font-size:13px;font-family:'Nunito',sans-serif;font-weight:700;}
+
+/* Pending badge */
+.pending-badge{display:inline-flex;align-items:center;gap:4px;background:var(--amber-lt);border:1px solid #FDE68A;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;color:#92400E;margin-bottom:1rem;}
+
+/* Rewards */
+.bank-card{border-radius:var(--r);padding:14px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:14px;}
+.bank-pts{font-family:'Nunito',sans-serif;font-size:28px;font-weight:800;}
+.bank-label{font-size:12px;margin-top:2px;}
+
+.reward-list{display:flex;flex-direction:column;gap:8px;}
+.reward-item{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.reward-item.can-redeem{border-color:var(--brand);}
+.reward-emoji{font-size:22px;width:34px;text-align:center;}
+.reward-name{font-size:14px;color:var(--g900);}
+.reward-cost{display:flex;align-items:center;gap:3px;font-size:12px;margin-top:2px;}
+.redeem-btn{cursor:pointer;border:none;border-radius:var(--rs);padding:7px 14px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;margin-left:auto;flex-shrink:0;transition:all .15s;}
+.redeem-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* Manage */
+.section-title{font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.06em;margin-bottom:8px;}
+.manage-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);padding:4px 14px;margin-bottom:10px;}
+.manage-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--g100);}
+.manage-row:last-child{border-bottom:none;}
+.del-btn{cursor:pointer;background:none;border:1px solid var(--g200);border-radius:var(--rs);padding:3px 8px;font-size:14px;color:var(--g600);flex-shrink:0;}
+.del-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--r);padding:1.5rem;width:min(360px,100%);max-height:85vh;overflow-y:auto;animation:slideUp .2s ease both;}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal h3{font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;margin-bottom:1rem;}
+
+/* Inputs */
+.field{margin-bottom:1rem;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;}
+input[type=text],input[type=number],input[type=email]{width:100%;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--rs);font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--g900);outline:none;transition:border-color .15s;}
+input:focus{border-color:var(--brand);}
+
+/* Buttons */
+.btn{cursor:pointer;border:none;border-radius:var(--rs);padding:9px 16px;font-size:14px;font-family:'Nunito',sans-serif;font-weight:700;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:7px;}
+.btn-primary{background:var(--brand);color:white;}
+.btn-primary:hover{background:var(--brand-dk);}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{background:var(--g100);color:var(--g800);border:1px solid var(--g200);}
+.btn-ghost:hover{background:var(--g200);}
+.btn-danger{background:#FEF2F2;color:var(--red);border:1px solid #FECACA;}
+.btn-danger:hover{background:#FEE2E2;}
+.btn-block{width:100%;}
+.spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.loading .spinner{display:inline-block;}
+.btn.loading .btn-lbl{display:none;}
+
+/* Color picker */
+.color-row{display:flex;gap:8px;flex-wrap:wrap;}
+.col-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;}
+.col-dot.sel{border-color:var(--g900);}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--g900);color:white;border-radius:var(--rs);padding:9px 20px;font-size:13px;opacity:0;pointer-events:none;z-index:200;white-space:nowrap;transition:opacity .2s;font-family:'Nunito Sans',sans-serif;}
+.toast.show{opacity:1;}
+
+/* Loading screen */
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:80vh;flex-direction:column;gap:12px;}
+.loading-screen p{font-size:14px;color:var(--g400);}
+.big-spinner{width:36px;height:36px;border:3px solid var(--g200);border-top-color:#F59E0B;border-radius:50%;animation:spin .8s linear infinite;}
+
+/* Invite section */
+.invite-section{background:var(--brand-lt);border:1px solid #C7D2FE;border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.invite-code{font-family:'Nunito',sans-serif;font-size:22px;font-weight:800;color:var(--brand-dk);letter-spacing:.15em;}
+.copy-btn{cursor:pointer;background:var(--brand);color:white;border:none;border-radius:var(--rs);padding:5px 12px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo" style="display:flex;align-items:center;gap:8px;">
+    <div style="background:#F59E0B;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L9.8 6H14.5L10.7 8.7l1.4 4.3L8 10.5l-4.1 2.5 1.4-4.3L1.5 6H6.2Z" fill="#0F0E1A"/></svg>
+    </div>
+    <span style="font-family:'Nunito',sans-serif;font-weight:900;letter-spacing:-.5px;color:#0F0E1A;">stark<span style="color:#F59E0B">i</span></span>
+  </div>
+  <div class="topbar-right">
+    <span class="family-name" id="family-name-top">—</span>
+    <div class="av" id="user-av" style="background:var(--brand)">?</div>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="main" id="main">
+  <div class="loading-screen" id="loading">
+    <div class="big-spinner"></div>
+    <p>Carregando...</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal genérico -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const sb = createClient(
+  'https://qoxnkpmkwwiecrtvghgh.supabase.co',
+  'sb_publishable_Zvl6LZdm6yrYDlP_3JGXiA_WS67O3xG'
+);
+
+/* ── Globals ── */
+let G = {
+  user: null, profile: null, family: null,
+  children: [], tasks: [], completions: [],
+  rewards: [], redemptions: [],
+  activeChild: null, tab: 'board',
+  pendingApprovals: []
+};
+
+const DAYS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const COLORS = ['#4F46E5','#0F6E56','#993C1D','#854F0B','#185FA5','#993556'];
+
+/* ── Helpers ── */
+function weekStart() {
+  const d = new Date();
+  d.setDate(d.getDate() - ((d.getDay()+6)%7));
+  return d.toISOString().slice(0,10);
+}
+function todayIdx() { return (new Date().getDay()+6)%7; }
+function todayStr()  { return new Date().toISOString().slice(0,10); }
+function fmt(dt) { return new Date(dt+'T00:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'}); }
+function ini(name) { return name.trim().split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?'; }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function setLoad(btn, on) {
+  btn.classList.toggle('loading', on);
+  btn.disabled = on;
+}
+
+/* ── Modal ── */
+window.closeModal = function(e) {
+  if (!e || e.target === document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+};
+function openModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+/* ── Logout ── */
+window.doLogout = async function() {
+  await sb.auth.signOut();
+  location.href = 'auth.html';
+};
+
+/* ── Load all data ── */
+async function loadData() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { location.href = 'auth.html'; return; }
+  G.user = user;
+
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  G.profile = prof;
+
+  if (!prof?.family_id) {
+    renderNoFamily(); return;
+  }
+
+  const [famR, childR, taskR, compR, rewR, redemR] = await Promise.all([
+    sb.from('families').select('*').eq('id', prof.family_id).single(),
+    sb.from('children').select('*').eq('family_id', prof.family_id).order('created_at'),
+    sb.from('tasks').select('*, task_templates(category)').eq('family_id', prof.family_id).eq('is_active', true).order('created_at'),
+    sb.from('task_completions').select('*')
+      .gte('completion_date', weekStart())
+      .in('child_id', (await sb.from('children').select('id').eq('family_id', prof.family_id)).data?.map(c=>c.id) || []),
+    sb.from('rewards').select('*').eq('family_id', prof.family_id).eq('is_active', true).order('cost'),
+    sb.from('redemptions').select('*').order('redeemed_at', {ascending:false}).limit(50)
+  ]);
+
+  G.family    = famR.data;
+  G.children  = childR.data || [];
+  G.tasks     = taskR.data  || [];
+  G.completions = compR.data || [];
+  G.rewards   = rewR.data   || [];
+  G.redemptions = redemR.data || [];
+  G.pendingApprovals = G.completions.filter(c => !c.approved_by);
+
+  if (G.children.length > 0) G.activeChild = G.children[0].id;
+
+  document.getElementById('family-name-top').textContent = G.family?.name || '';
+  const av = document.getElementById('user-av');
+  av.textContent = ini(G.profile?.name || '');
+  av.style.background = G.profile?.avatar_color || '#4F46E5';
+
+  render();
+}
+
+/* ── Main render ── */
+function render() {
+  const main = document.getElementById('main');
+  main.innerHTML = buildHeader() + buildTabs() + buildContent();
+  bindEvents();
+}
+
+function buildHeader() {
+  const child = G.children.find(c => c.id === G.activeChild);
+  const wp = child ? weekPts(child) : 0;
+  const mon = weekStart();
+  const sun = new Date(mon); sun.setDate(new Date(mon).getDate()+6);
+  const wkLabel = `${fmt(mon)} – ${fmt(sun.toISOString().slice(0,10))}`;
+
+  let childBtns = G.children.map(c => {
+    const isA = c.id === G.activeChild;
+    return `<button class="child-btn ${isA?'active':''}" style="${isA?`border-color:${c.color};color:${c.color};`:''}" data-child="${c.id}">
+      <div class="av" style="background:${c.color};width:24px;height:24px;font-size:9px;">${c.initials}</div>
+      ${c.name}
+    </button>`;
+  }).join('');
+  childBtns += `<button class="add-child-btn" onclick="modalAddChild()">+ Criança</button>`;
+
+  if (!child) return `<div class="children-bar">${childBtns}</div>`;
+
+  const done = childCompletions(child.id, todayStr()).length;
+  const total = childTasks(child.id).length;
+  const pctVal = total > 0 ? Math.round((weekDone(child.id) / (total*7)) * 100) : 0;
+
+  let pendingHtml = '';
+  const pending = G.pendingApprovals.filter(c => c.child_id === child.id);
+  if (pending.length > 0) {
+    pendingHtml = `<div class="pending-badge">⏳ ${pending.length} tarefa${pending.length>1?'s':''} aguardando aprovação</div>`;
+  }
+
+  return `
+    <div class="children-bar">${childBtns}</div>
+    ${pendingHtml}
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Pontos na semana</div>
+        <div class="stat-val">${wp}</div>
+        <div class="stat-sub">acumulados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Hoje</div>
+        <div class="stat-val">${done}<span style="font-size:14px;font-weight:500;color:var(--g400)">/${total}</span></div>
+        <div class="stat-sub">tarefas feitas</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Banco</div>
+        <div class="stat-val" style="color:${child.color}">${child.point_balance}</div>
+        <div class="stat-sub">pontos</div>
+      </div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-bar" style="width:${pctVal}%;background:${child.color}"></div>
+    </div>
+    <div class="week-info">
+      <span class="week-label">${wkLabel}</span>
+      <button class="add-bank-btn" id="btn-add-bank" style="background:${child.color}" onclick="addToBank('${child.id}')" ${wp===0?'disabled':''}>
+        + Adicionar ${wp} pts ao banco
+      </button>
+    </div>`;
+}
+
+function buildTabs() {
+  return `<div class="tabs">
+    ${[['board','Semana'],['rewards','Recompensas'],['manage','Gerenciar']].map(([id,lbl])=>
+      `<button class="tab ${G.tab===id?'active':''}" onclick="switchTab('${id}')">${lbl}</button>`
+    ).join('')}
+  </div>`;
+}
+
+function buildContent() {
+  if (G.tab === 'board')   return buildBoard();
+  if (G.tab === 'rewards') return buildRewards();
+  if (G.tab === 'manage')  return buildManage();
+  return '';
+}
+
+/* ── Board ── */
+function childTasks(childId) {
+  return G.tasks.filter(t => !t.child_id || t.child_id === childId);
+}
+function childCompletions(childId, date) {
+  return G.completions.filter(c => c.child_id === childId && c.completion_date === date);
+}
+function isCompleted(childId, taskId, date) {
+  return G.completions.some(c => c.child_id===childId && c.task_id===taskId && c.completion_date===date);
+}
+function weekPts(child) {
+  const tasks = childTasks(child.id);
+  return G.completions
+    .filter(c => c.child_id === child.id && c.approved_by && !c.banked_at)
+    .reduce((s,c) => {
+      const t = tasks.find(t=>t.id===c.task_id);
+      return s + (t?.points_per_day || 0);
+    }, 0);
+}
+function weekDone(childId) {
+  return G.completions.filter(c => c.child_id === childId && c.approved_by).length;
+}
+
+const CAT_COLORS = {
+  'Higiene':'#0F6E56','Organizacao':'#185FA5','Escola':'#534AB7',
+  'Casa':'#854F0B','Comportamento':'#993556','Esporte':'#D85A30','Alimentacao':'#10B981'
+};
+const CAT_LABELS = {
+  'Higiene':'🧼 Higiene','Organizacao':'📦 Organização','Escola':'📚 Escola',
+  'Casa':'🏠 Casa','Comportamento':'😊 Comportamento','Esporte':'⚽ Esporte',
+  'Alimentacao':'🥗 Alimentação'
+};
+
+function buildBoard() {
+  const child = G.children.find(c => c.id === G.activeChild);
+  if (!child) return '<p style="color:var(--g400);font-size:14px;text-align:center;padding:2rem 0">Nenhuma criança cadastrada ainda.</p>';
+  const tasks = childTasks(child.id);
+  const today = todayIdx();
+  const color = child.color;
+
+  const dayHeaderCols = DAYS.map((d,i) => {
+    const isToday = i===today;
+    return `<div class="day-col">
+      <span class="day-name" style="${isToday?`color:${color};font-weight:700;`:''}">${d}</span>
+      ${isToday?`<div class="day-today-dot" style="background:${color}"></div>`:''}
+    </div>`;
+  }).join('');
+
+  const dayHeader = `<div class="day-header">
+    <div class="day-header-spacer"></div>
+    ${dayHeaderCols}
+    <div style="width:36px"></div>
+  </div>`;
+
+  function buildTaskRow(task) {
+    let cells = '';
+    for (let di=0; di<7; di++) {
+      const date = new Date(weekStart());
+      date.setDate(date.getDate()+di);
+      const dateStr = date.toISOString().slice(0,10);
+      const comp = G.completions.find(c => c.child_id===child.id && c.task_id===task.id && c.completion_date===dateStr);
+      const done = !!comp;
+      const approved = done && comp.approved_by;
+      const banked = done && comp.banked_at;
+      const pending = done && !comp.approved_by;
+
+      cells += `<div class="day-cell ${done?'done':''} ${pending?'pending':''}"
+        style="${banked?`background:${color}10;border-color:${color}60;`:approved?`background:${color}20;border-color:${color};`:''}${pending?`background:var(--amber-lt);`:''}}"
+        data-task="${task.id}" data-date="${dateStr}" data-child="${child.id}" ${banked?'':' onclick="toggleCompletion(this)"'}>
+        <svg class="check-svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2.5 7l3.5 3.5 5.5-6" stroke="${banked?color+'80':approved?color:'var(--amber)'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>`;
+    }
+    const taskWeekPts = G.completions
+      .filter(c => c.child_id===child.id && c.task_id===task.id && c.approved_by && !c.banked_at).length * task.points_per_day;
+
+    return `<div class="task-row">
+      <div class="task-info">
+        <div class="task-label">${task.label}</div>
+        <div class="task-pts-badge">
+          <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M7 1.2 8.6 5H12.5L9.4 7.3l1.2 3.8L7 9.1l-3.6 2 1.2-3.8L1.5 5H5.4z" fill="none" stroke="${color}" stroke-width="1.2"/></svg>
+          <span class="task-pts-text">${task.points_per_day} pts/dia</span>
+        </div>
+      </div>
+      ${cells}
+      <div class="pts-col" style="color:${taskWeekPts>0?color:'var(--g400)'}">${taskWeekPts}</div>
+    </div>`;
+  }
+
+  if (tasks.length === 0) {
+    return `<div class="task-card">${dayHeader}
+      <div style="padding:1.5rem 0;text-align:center;font-size:14px;color:var(--g400)">
+        Nenhuma tarefa cadastrada. Adicione na aba Gerenciar.
+      </div></div>`;
+  }
+
+  /* Group tasks by category */
+  const grouped = {};
+  tasks.forEach(task => {
+    const cat = task.task_templates?.category || 'Personalizada';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(task);
+  });
+
+  /* Fixed category order + custom at end */
+  const catOrder = ['Higiene','Alimentacao','Escola','Organizacao','Casa','Comportamento','Esporte','Personalizada'];
+  const sortedCats = Object.keys(grouped).sort((a,b) => {
+    const ia = catOrder.indexOf(a); const ib = catOrder.indexOf(b);
+    return (ia===-1?99:ia) - (ib===-1?99:ib);
+  });
+
+  const blocks = sortedCats.map(cat => {
+    const catColor = CAT_COLORS[cat] || 'var(--g400)';
+    const catLabel = CAT_LABELS[cat] || cat;
+    const rows = grouped[cat].map(buildTaskRow).join('');
+    return `<div class="task-card" style="margin-bottom:.75rem;">
+      <div style="padding:8px 0 2px;border-bottom:1px solid var(--g100);margin-bottom:2px;">
+        <span style="font-size:11px;font-weight:700;color:${catColor};letter-spacing:.06em;">${catLabel.toUpperCase()}</span>
+      </div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  return `<div style="position:sticky;top:53px;z-index:10;background:#FFFBF0;padding:4px 0 2px;">
+    <div class="task-card" style="margin-bottom:0;padding:4px 14px;">
+      ${dayHeader}
+    </div>
+  </div>
+  ${blocks}`;
+}
+
+/* ── Rewards ── */
+function buildRewards() {
+  const child = G.children.find(c => c.id === G.activeChild);
+  if (!child) return '';
+  const balance = child.point_balance;
+
+  const items = G.rewards.map(r => {
+    const can = balance >= r.cost;
+    return `<div class="reward-item ${can?'can-redeem':''}">
+      <div class="reward-emoji">${r.emoji||'🎁'}</div>
+      <div style="flex:1">
+        <div class="reward-name">${r.label}</div>
+        <div class="reward-cost" style="color:${can?child.color:'var(--g400)'}">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 1.2 8.6 5H12.5L9.4 7.3l1.2 3.8L7 9.1l-3.6 2 1.2-3.8L1.5 5H5.4z" fill="${can?child.color:'none'}" stroke="${can?child.color:'var(--g400)'}" stroke-width="1.2"/></svg>
+          ${r.cost} pts
+        </div>
+      </div>
+      <button class="redeem-btn" style="background:${can?child.color:'var(--g100)'};color:${can?'white':'var(--g400)'};"
+        onclick="doRedeem('${r.id}','${child.id}',${r.cost},'${r.label}')" ${!can?'disabled':''}>Resgatar</button>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="bank-card" style="background:${child.color}15;border:1px solid ${child.color}40;">
+      <div style="font-size:32px">⭐</div>
+      <div>
+        <div class="bank-label" style="color:${child.color}">Saldo de ${child.name}</div>
+        <div class="bank-pts" style="color:${child.color}">${balance} pontos</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="section-title">RECOMPENSAS</div>
+      <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="modalAddReward()">+ Nova</button>
+    </div>
+    <div class="reward-list">${items.length ? items : '<p style="color:var(--g400);font-size:14px;text-align:center;padding:1rem 0">Nenhuma recompensa cadastrada.</p>'}</div>`;
+}
+
+/* ── Manage ── */
+function buildManage() {
+  const child = G.children.find(c => c.id === G.activeChild);
+  const tasks = child ? childTasks(child.id) : [];
+
+  /* Invite code */
+  const inviteHtml = `
+    <div class="section-title">CONVIDAR OUTRO RESPONSÁVEL</div>
+    <div class="invite-section">
+      <div style="font-size:12px;color:var(--brand-dk);margin-bottom:4px;">Código da família</div>
+      <div class="invite-code">${G.family?.invite_code?.toUpperCase() || '—'}</div>
+      <div style="font-size:12px;color:var(--brand-dk);margin-top:6px;margin-bottom:8px;">
+        Compartilhe este código com o outro responsável para entrar na mesma família.
+      </div>
+      <button class="copy-btn" onclick="copyInvite()">Copiar código</button>
+    </div>`;
+
+  /* Tasks list */
+  const taskRows = tasks.map((t,i) => `
+    <div class="manage-row">
+      <div style="flex:1;font-size:14px;color:var(--g900);">${t.label}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--brand);margin-right:8px;">${t.points_per_day} pts</div>
+      <button class="del-btn" onclick="deleteTask('${t.id}')">×</button>
+    </div>`).join('');
+
+  /* Pending approvals */
+  const pendingRows = G.pendingApprovals.filter(c => !child || c.child_id === child?.id).map(comp => {
+    const task = G.tasks.find(t => t.id === comp.task_id);
+    const ch = G.children.find(c => c.id === comp.child_id);
+    return `<div class="manage-row">
+      <div class="av" style="background:${ch?.color};width:28px;height:28px;font-size:9px;flex-shrink:0;">${ch?.initials||'?'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:var(--g900);">${task?.label||'—'}</div>
+        <div style="font-size:11px;color:var(--g400);">${ch?.name} · ${comp.completion_date}</div>
+      </div>
+      <button class="btn btn-primary" style="padding:5px 12px;font-size:12px;" onclick="approveCompletion('${comp.id}','${comp.child_id}','${comp.task_id}')">Aprovar</button>
+    </div>`;
+  }).join('');
+
+  /* Children list */
+  const childRows = G.children.map(c => `
+    <div class="manage-row">
+      <div class="av" style="background:${c.color};width:28px;height:28px;font-size:9px;flex-shrink:0;">${c.initials}</div>
+      <div style="flex:1;font-size:14px;color:var(--g900);">${c.name}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--g400);margin-right:8px;">${c.point_balance} pts</div>
+      <button class="del-btn" onclick="deleteChild('${c.id}','${c.name}')">×</button>
+    </div>`).join('');
+
+  return `
+    ${inviteHtml}
+    ${pendingRows ? `
+      <div class="section-title" style="color:#92400E;">AGUARDANDO APROVAÇÃO</div>
+      <div class="manage-card">${pendingRows}</div>` : ''}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="section-title">TAREFAS</div>
+      <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px;" onclick="modalAddTask()">+ Nova</button>
+    </div>
+    <div class="manage-card">${taskRows||'<div style="padding:10px 0;font-size:13px;color:var(--g400)">Nenhuma tarefa ainda.</div>'}</div>
+    <div class="section-title">CRIANÇAS</div>
+    <div class="manage-card">${childRows||'<div style="padding:10px 0;font-size:13px;color:var(--g400)">Nenhuma criança ainda.</div>'}</div>`;
+}
+
+/* ── Events ── */
+function bindEvents() {
+  document.querySelectorAll('[data-child]').forEach(btn => {
+    if (btn.classList.contains('child-btn'))
+      btn.addEventListener('click', () => { G.activeChild = btn.dataset.child; render(); });
+  });
+}
+
+window.switchTab = function(tab) { G.tab = tab; render(); };
+
+/* ── Toggle completion ── */
+window.toggleCompletion = async function(cell) {
+  const { task, date, child } = cell.dataset;
+  const exists = G.completions.find(c => c.task_id===task && c.child_id===child && c.completion_date===date);
+  if (exists) {
+    await sb.from('task_completions').delete().eq('id', exists.id);
+    G.completions = G.completions.filter(c => c.id !== exists.id);
+  } else {
+    const { data, error } = await sb.from('task_completions')
+      .insert({ task_id:task, child_id:child, completion_date:date, approved_by:G.user.id, approved_at:new Date().toISOString() })
+      .select().single();
+    if (!error) G.completions.push(data);
+  }
+  render();
+};
+
+/* ── Approve ── */
+window.approveCompletion = async function(id, childId, taskId) {
+  const { error } = await sb.from('task_completions')
+    .update({ approved_by: G.user.id, approved_at: new Date().toISOString() })
+    .eq('id', id);
+  if (!error) {
+    const comp = G.completions.find(c => c.id === id);
+    if (comp) { comp.approved_by = G.user.id; }
+    G.pendingApprovals = G.pendingApprovals.filter(c => c.id !== id);
+    const task = G.tasks.find(t => t.id === taskId);
+    const pts = task?.points_per_day || 0;
+    await sb.from('point_transactions').insert({
+      child_id: childId, amount: pts,
+      description: `Tarefa aprovada: ${task?.label}`,
+      created_by: G.user.id
+    });
+    const child = G.children.find(c => c.id === childId);
+    if (child) {
+      child.point_balance += pts;
+      await sb.from('children').update({ point_balance: child.point_balance }).eq('id', childId);
+    }
+    toast('Tarefa aprovada! +' + pts + ' pts');
+    render();
+  }
+};
+
+/* ── Add to bank ── */
+window.addToBank = async function(childId) {
+  const child = G.children.find(c => c.id === childId);
+  if (!child) return;
+  const btn = document.getElementById('btn-add-bank');
+  if (btn) setLoad(btn, true);
+  const wp = weekPts(child);
+  if (wp === 0) { toast('Nenhum ponto aprovado esta semana!'); return; }
+
+  child.point_balance += wp;
+  await sb.from('children').update({ point_balance: child.point_balance }).eq('id', childId);
+  await sb.from('point_transactions').insert({
+    child_id: childId, amount: wp,
+    description: 'Pontos da semana adicionados ao banco',
+    created_by: G.user.id
+  });
+  /* Mark transferred: set banked_at so they remain visible but can't be banked again */
+  const now = new Date().toISOString();
+  const transferredIds = G.completions
+    .filter(c => c.child_id === childId && c.approved_by && !c.banked_at)
+    .map(c => c.id);
+  if (transferredIds.length > 0) {
+    await sb.from('task_completions').update({ banked_at: now }).in('id', transferredIds);
+    G.completions.forEach(c => { if (transferredIds.includes(c.id)) c.banked_at = now; });
+  }
+  toast(`+${wp} pts adicionados ao banco de ${child.name}!`);
+  render();
+};
+
+/* ── Redeem ── */
+window.doRedeem = async function(rewardId, childId, cost, label) {
+  const child = G.children.find(c => c.id === childId);
+  if (!child || child.point_balance < cost) return;
+  child.point_balance -= cost;
+  await sb.from('children').update({ point_balance: child.point_balance }).eq('id', childId);
+  await sb.from('redemptions').insert({
+    child_id: childId, reward_id: rewardId,
+    cost_snapshot: cost, approved_by: G.user.id
+  });
+  await sb.from('point_transactions').insert({
+    child_id: childId, amount: -cost,
+    description: `Recompensa resgatada: ${label}`,
+    created_by: G.user.id
+  });
+  toast(`"${label}" resgatada! 🎉`);
+  render();
+};
+
+/* ── Copy invite ── */
+window.copyInvite = function() {
+  const code = G.family?.invite_code || '';
+  navigator.clipboard.writeText(code).then(() => toast('Código copiado!'));
+};
+
+/* ── Modal: Add child ── */
+window.modalAddChild = function() {
+  let selColor = COLORS[0];
+  openModal(`
+    <h3>Nova criança</h3>
+    <div class="field"><label>Nome</label><input type="text" id="mc-name" placeholder="Ex: Ana"/></div>
+    <div class="field">
+      <label>Cor</label>
+      <div class="color-row">
+        ${COLORS.map((c,i)=>`<div class="col-dot ${i===0?'sel':''}" style="background:${c}" data-color="${c}" onclick="pickCol(this,'mc-av')"></div>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin:1rem 0 1.25rem;">
+      <div class="av" id="mc-av" style="background:${selColor};width:40px;height:40px;font-size:14px;">?</div>
+      <span style="font-size:13px;color:var(--g600);">Prévia do avatar</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-block" id="mc-save" onclick="saveChild()">
+        <span class="spinner"></span><span class="btn-lbl">Salvar</span>
+      </button>
+    </div>`);
+  document.getElementById('mc-name').addEventListener('input', e => {
+    const av = document.getElementById('mc-av');
+    if (av) av.textContent = ini(e.target.value) || '?';
+  });
+};
+
+window.pickCol = function(el, avId) {
+  el.closest('.color-row').querySelectorAll('.col-dot').forEach(d => d.classList.remove('sel'));
+  el.classList.add('sel');
+  const av = document.getElementById(avId);
+  if (av) av.style.background = el.dataset.color;
+};
+
+window.saveChild = async function() {
+  const name = document.getElementById('mc-name')?.value.trim();
+  if (!name) { toast('Digite o nome'); return; }
+  const color = document.querySelector('#modal-box .col-dot.sel')?.dataset.color || COLORS[0];
+  const btn = document.getElementById('mc-save');
+  setLoad(btn, true);
+  const { data, error } = await sb.from('children').insert({
+    family_id: G.family.id, name, color,
+    initials: ini(name), point_balance: 0
+  }).select().single();
+  if (!error) {
+    G.children.push(data);
+    G.activeChild = data.id;
+    closeModal();
+    toast(`${name} adicionado!`);
+    render();
+  } else {
+    toast('Erro ao salvar'); setLoad(btn, false);
+  }
+};
+
+/* ── Modal: Add task ── */
+window.modalAddTask = async function() {
+  openModal(`<div style="text-align:center;padding:1rem 0;color:var(--g400);font-size:13px;">Carregando tarefas...</div>`);
+  const { data: templates } = await sb.from('task_templates').select('*').order('category').order('label');
+  const existing = new Set(G.tasks.map(t => t.label.toLowerCase()));
+  const grouped = {};
+  (templates || []).forEach(t => {
+    if (!grouped[t.category]) grouped[t.category] = [];
+    grouped[t.category].push(t);
+  });
+  const catColors = {
+    'Higiene':'#0F6E56','Organizacao':'#185FA5','Escola':'#534AB7',
+    'Casa':'#854F0B','Comportamento':'#993556','Esporte':'#D85A30','Alimentacao':'#10B981'
+  };
+  let templateHTML = Object.entries(grouped).map(([cat, tasks]) => {
+    const rows = tasks.map(t => {
+      const added = existing.has(t.label.toLowerCase());
+      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--g100);">
+        <div style="flex:1;font-size:13px;color:${added?'var(--g400)':'var(--g900)'};">${t.label}</div>
+        <span style="font-size:11px;font-weight:600;color:var(--g400);min-width:32px;text-align:right;">${t.points} pts</span>
+        ${added
+          ? '<span style="font-size:11px;color:var(--g400);min-width:52px;text-align:center;">adicionada</span>'
+          : '<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px;min-width:52px;" onclick="addTemplateTask(\'' + t.id + '\',\'' + t.label.replace(/'/g,"\\'") + '\',' + t.points + ')">+ Add</button>'
+        }
+      </div>`;
+    }).join('');
+    const color = catColors[cat] || '#888';
+    return `<div style="margin-bottom:.75rem;">
+      <div style="font-size:11px;font-weight:700;color:${color};letter-spacing:.06em;padding:6px 0 2px;">${cat.toUpperCase()}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  openModal(`
+    <h3>Adicionar tarefas</h3>
+    <div style="max-height:380px;overflow-y:auto;margin-bottom:1rem;padding-right:4px;">${templateHTML}</div>
+    <div style="border-top:1px solid var(--g200);padding-top:1rem;">
+      <div style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;">Ou crie uma tarefa personalizada:</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="mt-label" placeholder="Nome da tarefa" style="flex:1;min-width:140px;"/>
+        <input type="number" id="mt-pts" min="1" max="20" value="3" style="width:64px;"/>
+        <button class="btn btn-primary" id="mt-save" onclick="saveCustomTask()">
+          <span class="spinner"></span><span class="btn-lbl">+ Criar</span>
+        </button>
+      </div>
+    </div>`);
+};
+
+window.addTemplateTask = async function(templateId, label, pts) {
+  const { data, error } = await sb.from('tasks').insert({
+    family_id: G.family.id, label,
+    points_per_day: pts,
+    template_id: templateId,
+    child_id: null
+  }).select().single();
+  if (!error) {
+    G.tasks.push(data);
+    toast('"' + label + '" adicionada!');
+    modalAddTask();
+  } else { toast('Erro ao adicionar'); }
+};
+
+window.saveCustomTask = async function() {
+  const label = document.getElementById('mt-label')?.value.trim();
+  const pts   = parseInt(document.getElementById('mt-pts')?.value) || 3;
+  if (!label) { toast('Digite a descricao'); return; }
+  const btn = document.getElementById('mt-save');
+  setLoad(btn, true);
+  const { data, error } = await sb.from('tasks').insert({
+    family_id: G.family.id, label,
+    points_per_day: Math.max(1, pts),
+    child_id: null
+  }).select().single();
+  if (!error) {
+    G.tasks.push(data);
+    toast('"' + label + '" criada!');
+    modalAddTask();
+  } else { toast('Erro ao salvar'); setLoad(btn, false); }
+};
+
+window.saveTask = window.saveCustomTask;
+
+/* ── Modal: Add reward ── */
+window.modalAddReward = function() {
+  openModal(`
+    <h3>Nova recompensa</h3>
+    <div style="display:flex;gap:8px;margin-bottom:1rem;">
+      <div class="field" style="width:70px;margin:0"><label>Emoji</label><input type="text" id="mr-emoji" value="🎁" style="text-align:center;width:60px;"/></div>
+      <div class="field" style="flex:1;margin:0"><label>Nome</label><input type="text" id="mr-label" placeholder="Ex: Noite de pizza"/></div>
+    </div>
+    <div class="field"><label>Custo em pontos</label><input type="number" id="mr-cost" min="1" value="20" style="width:90px;"/></div>
+    <div style="display:flex;gap:8px;margin-top:.5rem;">
+      <button class="btn btn-ghost btn-block" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary btn-block" id="mr-save" onclick="saveReward()">
+        <span class="spinner"></span><span class="btn-lbl">Salvar</span>
+      </button>
+    </div>`);
+};
+
+window.saveReward = async function() {
+  const label = document.getElementById('mr-label')?.value.trim();
+  const emoji = document.getElementById('mr-emoji')?.value.trim() || '🎁';
+  const cost  = parseInt(document.getElementById('mr-cost')?.value) || 1;
+  if (!label) { toast('Digite o nome'); return; }
+  const btn = document.getElementById('mr-save');
+  setLoad(btn, true);
+  const { data, error } = await sb.from('rewards').insert({
+    family_id: G.family.id, label, emoji, cost: Math.max(1, cost)
+  }).select().single();
+  if (!error) {
+    G.rewards.push(data);
+    closeModal(); toast('Recompensa criada!'); render();
+  } else { toast('Erro ao salvar'); setLoad(btn, false); }
+};
+
+/* ── Delete task ── */
+window.deleteTask = async function(id) {
+  if (!confirm('Remover esta tarefa?')) return;
+  await sb.from('tasks').update({ is_active: false }).eq('id', id);
+  G.tasks = G.tasks.filter(t => t.id !== id);
+  render(); toast('Tarefa removida');
+};
+
+/* ── Delete child ── */
+window.deleteChild = async function(id, name) {
+  if (!confirm(`Remover ${name}? Todos os dados serão perdidos.`)) return;
+  await sb.from('children').delete().eq('id', id);
+  G.children = G.children.filter(c => c.id !== id);
+  G.activeChild = G.children[0]?.id || null;
+  render(); toast(`${name} removido`);
+};
+
+/* ── No family screen ── */
+function renderNoFamily() {
+  document.getElementById('main').innerHTML = `
+    <div style="max-width:400px;margin:3rem auto;text-align:center;">
+      <div style="font-size:48px;margin-bottom:1rem">🏠</div>
+      <h2 style="font-family:'Nunito';font-weight:800;margin-bottom:.5rem">Você não está em nenhuma família</h2>
+      <p style="font-size:14px;color:var(--g400);margin-bottom:1.5rem">Crie uma nova família ou entre com um código de convite</p>
+      <button class="btn btn-primary btn-block" onclick="modalCreateFamily()" style="margin-bottom:.75rem">Criar família</button>
+      <button class="btn btn-ghost btn-block" onclick="modalJoinFamily()">Entrar com convite</button>
+    </div>`;
+}
+
+window.modalCreateFamily = function() {
+  openModal(`
+    <h3>Criar família</h3>
+    <div class="field"><label>Nome da família</label><input type="text" id="cf-name" placeholder="Ex: Família Silva"/></div>
+    <button class="btn btn-primary btn-block" id="cf-save" onclick="createFamily()">
+      <span class="spinner"></span><span class="btn-lbl">Criar</span>
+    </button>`);
+};
+
+window.createFamily = async function() {
+  const name = document.getElementById('cf-name')?.value.trim();
+  if (!name) { toast('Digite o nome'); return; }
+  const btn = document.getElementById('cf-save');
+  setLoad(btn, true);
+  const { data, error } = await sb.from('families').insert({ name }).select().single();
+  if (!error) {
+    await sb.from('profiles').update({ family_id: data.id }).eq('id', G.user.id);
+    closeModal(); location.reload();
+  } else { toast('Erro ao criar família'); setLoad(btn, false); }
+};
+
+window.modalJoinFamily = function() {
+  openModal(`
+    <h3>Entrar na família</h3>
+    <div class="field"><label>Código de convite</label><input type="text" id="jf-code" placeholder="Ex: A1B2C3D4" style="letter-spacing:.1em;text-transform:uppercase;"/></div>
+    <button class="btn btn-primary btn-block" id="jf-save" onclick="joinFamily()">
+      <span class="spinner"></span><span class="btn-lbl">Entrar</span>
+    </button>`);
+};
+
+window.joinFamily = async function() {
+  const code = document.getElementById('jf-code')?.value.trim().toLowerCase();
+  if (!code) { toast('Digite o código'); return; }
+  const btn = document.getElementById('jf-save');
+  setLoad(btn, true);
+  const { data: fam, error } = await sb.from('families').select('id,name').eq('invite_code', code).single();
+  if (error || !fam) { toast('Código inválido'); setLoad(btn, false); return; }
+  await sb.from('profiles').update({ family_id: fam.id }).eq('id', G.user.id);
+  closeModal(); location.reload();
+};
+
+/* ── Init ── */
+const { data: { session } } = await sb.auth.getSession();
+if (!session) { location.href = 'auth.html'; }
+else { await loadData(); }
+
+</script>
+</body>
+</html>

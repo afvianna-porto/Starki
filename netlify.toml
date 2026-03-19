@@ -1,0 +1,27 @@
+[build]
+  base    = "starki-landing-page"
+  command = "pnpm install && pnpm vite build && cp ../app.html dist/public/app.html && cp ../auth.html dist/public/auth.html"
+  publish = "dist/public"
+
+# Landing page (React SPA) - serve index.html for all React routes
+[[redirects]]
+  from = "/app"
+  to   = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/auth"
+  to   = "/auth.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to   = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
